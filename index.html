@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Logo re-save</title>
+    <style>
+        body {
+            background-color: white;
+        }
+        img {
+            display: block;
+        }
+        .image-container {
+            border: 1px solid gray;
+            display: inline-block;
+        }
+    </style>
+    <style type="text/css" id="image-variants">
+        .black-background {
+            background-color: black;
+        }
+        .gray {
+            filter: grayscale(1);
+        }
+        .square {
+            width: 316px;
+            height: 316px;
+        }
+        .linkedin-profile-cover-image {
+            width: 1584px;
+            height: 396px;
+        }
+        .linkedin-profile-cover-image--company-page {
+            width: 1584px;
+            height: 396px;
+            padding-top: 100px;
+            padding-bottom: 150px;
+            box-sizing: border-box;
+        }
+        .linkedin-profile-cover-image--to-the-left {
+            width: 1584px;
+            height: 396px;
+            padding-left: 40px;
+            padding-right: calc(1584px * 2 / 3 + 40px);
+            padding-bottom: 100px;
+            box-sizing: border-box;
+        }
+        .linkedin-overview-tab-logo-image {
+            width: 300px;
+            height: 300px;
+        }
+        .linkedin-overview-tab-image {
+            width: 360px;
+            height: 120px;
+        }
+        .linkedin-overview-tab-cover-image {
+            width: 1536px;
+            height: 768px;
+        }
+        .linkedin-life-tab-hero-image {
+            width: 1128px;
+            height: 376px;
+        }
+        .linkedin-life-tab-custom-modules {
+            width: 502px;
+            height: 282px;
+        }
+        .linkedin-life-tab-company-photos {
+            width: 900px;
+            height: 600px;
+        }
+        .linkedin-post {
+            box-sizing: border-box;
+            width: 552px;
+            height: 368px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Logo</h1>
+    <h2>Original</h2>
+    <div class="image-container">
+        <img src="dignat-consulting-ab-color--optimized.svg" class="original" data-source-image />
+    </div>
+    <script>
+        const sourceImage = document.querySelector('[data-source-image]') 
+        const sheets = Array.from(document.styleSheets)
+        const imageVariantStyles = sheets.find(sheet => sheet.ownerNode.id === 'image-variants').cssRules
+        const imageVariantClasses = Array.from(imageVariantStyles).map(rule => rule.selectorText.slice(1))
+        imageVariantClasses.forEach(imageClass => {
+            const imageHeading = document.createElement('h2')
+            imageHeading.textContent = imageClass
+            document.body.appendChild(imageHeading)
+            
+            const imageContainer = document.createElement('div')
+            imageContainer.classList.add('image-container')
+            document.body.appendChild(imageContainer)
+
+            const image = sourceImage.cloneNode()
+            image.classList.add(imageClass)
+            imageContainer.appendChild(image)
+        })
+    </script>    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.js"></script>
+    <script type="text/javascript">
+        document.querySelectorAll('img').forEach(image => {
+            image.addEventListener('click', function () {
+                const clickedImage = this
+                console.log(this)
+                savePng(clickedImage)
+                saveJpg(clickedImage)
+            })
+        })
+
+        function savePng (node) {
+            domtoimage.toBlob(node)
+                    .then((blob) => {
+                        window.saveAs(blob, `${node.classList}.png`)
+                    })
+        }
+
+        function saveJpg (node) {
+            const bgcolor = getBackgroundColor(node)
+            const options = {
+                quality: 0.95,
+                bgcolor: rgb2hex(bgcolor)
+            }
+            domtoimage.toJpeg(node, options)
+                .then(function (dataUrl) {
+                    var link = document.createElement('a');
+                    link.download = `${node.classList}.jpeg`;
+                    link.href = dataUrl;
+                    link.click();
+                })
+        }
+
+        function getBackgroundColor(node) {
+            var bgColor = "";
+            while (node.tagName.toLowerCase() != "html") { 
+                const style = window.getComputedStyle(node)
+                bgColor = style.getPropertyValue('background-color')
+                if (bgColor !== "rgba(0, 0, 0, 0)" && bgColor !== "transparent") {
+                    break;
+                }
+                node = node.parentNode;
+            }
+            return bgColor;
+        }
+
+        function rgb2hex(rgb){
+            rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i)
+            return (rgb && rgb.length === 4) ? "#" +
+                ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+                ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+                ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : ''
+        }
+    </script>
+</body>
+</html>
